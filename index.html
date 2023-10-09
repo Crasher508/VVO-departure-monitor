@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>Departure Monitor</title>
+</head>
+<body style="background-color: black" onload="startTime()">
+<div style="float: right; margin-right: 2%">
+    <span id="time" style="font-size:24px; color:white; font-family: Helvetica, sans-serif;"></span>
+</div>
+<div style="margin-left: 2%; margin-right: 2%">
+    <span id="data" style="font-size:24px; color:#ffcd27; font-family: Helvetica, sans-serif;"></span>
+</div>
+
+<script>
+    let params = new URLSearchParams(window.location.search);
+    let idParam = params.get("id");
+    let modeParam = params.get("mode");
+    let stopId = "33000131"; //Dresden Reichenbachstraße
+    if (idParam !== null) {
+        if (idParam.length === 8) {
+            stopId = idParam;
+        }
+    }
+    let url = "https://webapi.vvo-online.de/dm";
+    let urlParam = params.get("url");
+    if (urlParam !== null) {
+        url = urlParam;
+    }
+
+    function startTime() {
+        const today = new Date();
+        let h = today.getHours();
+        let m = today.getMinutes();
+        let s = today.getSeconds();
+        let d = today.getDate();
+        let month = today.getMonth() + 1;
+        month = checkTime(month);
+        document.getElementById('time').innerHTML = checkTime(d) + "." + month + "." + today.getFullYear() + " " + checkTime(h) + ":" + checkTime(m) + ":" + checkTime(s);
+        if (s === 0) {
+            getData();
+        }
+        setTimeout(startTime, 1000);
+    }
+
+    function checkTime(i) {
+        if (i < 10) {i = "0" + i}
+        return i;
+    }
+
+    async function getData() {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: `{
+                "stopid": ` + stopId + `,"isarrival": false,
+                "shorttermchanges": true,
+                "mentzonly": false
+            }`,
+        });
+        response.json().then(data => {
+            const statusTable = {
+                "Delayed" : "versp&auml;tet",
+                "InTime"  : "p&uuml;nktlich",
+                "Canceled": "Zug f&auml;llt aus !",
+                "undefined" : "unbekannt"
+            };
+            let text = "<h1>" + data.Place + " " + data.Name + "</h1><br>";
+            for (let i=0; i < data.Departures.length; i++) {
+                let linedir =  '<b>'+data.Departures[i].LineName + " : " + data.Departures[i].Direction+' </b>';
+                let direction = data.Departures[i].Direction;
+                if (modeParam === null) {
+                    if (i > 0) {
+                        text += '<br><hr style="color:#272727;">';
+                    }
+                } else {
+                    if (i > 0) {
+                        text += '<br><br>';
+                    }
+                    text += '<span>' + data.Departures[i].Mot + '</span><span style="display: block;width: 100%; border-top: 1px solid #ffffff"></span>'
+                }
+                let schedule = parseInt(data.Departures[i].ScheduledTime.substring(6, 19))
+                let time = new Date(schedule);
+                let soll = time.toTimeString().substring(0, 5);
+                let status = statusTable[ data.Departures[i].State ] ;
+                document.getElementById("data").innerHTML = '<span style="font-size:22pt; color:#ffcd27; float:left"> x'+status+'x </span>';
+                let color = "red";
+                if (status === "unbekannt") {
+                    document.getElementById("data").innerHTML = '<span style="font-size:22pt; color:#ffcd27; float:left"> hier </span>';
+                    delay = "";
+                    status = " keine Echtzeitdaten verf&uuml;gbar.";
+                    color = "grey";
+                } else {
+                    var statusText = statusTable[ data.Departures[i].State ] ;
+                    var delay =  Math.floor(((parseInt(data.Departures[i].RealTime.substring(6, 19))) - schedule)/60000);
+                    if (delay > 0) {
+                        delay = '<b style="color:red">&nbsp;+'+delay+'</b>';
+                        color = "red";
+                    } else if (direction.substring(direction.length-10, direction.length) === " fällt aus") {
+                        linedir = "<b>"+data.Departures[i].LineName + " : " + data.Departures[i].Direction.substring(0, data.Departures[i].Direction.length-10)+" </b>";
+                        delay = "";
+                        statusText = " Zug f&auml;llt aus !";
+                        color = "red";
+                    } else {
+                        delay = "";
+                        color = "green";
+                    }
+                }
+                let minutes = Math.floor((time - new Date())/60000);
+                let minutesText = " in " + minutes + " ";
+                if (minutes < 1) {
+                    minutesText = "jetzt"
+                } else if (minutes === 1) {
+                    minutesText += "Minute";
+                } else {
+                    minutesText += "Minuten";
+                }
+                text += linedir + '<span style="float:right">' + soll + delay + '</span><br><i style="color:'+color+'">'+ statusText + '</i><span style="float:right">' + minutesText + '</span>';
+            }
+            document.getElementById("data").innerHTML = text;
+        })
+    }
+
+    getData();
+</script>
+
+</body>
+</html>
