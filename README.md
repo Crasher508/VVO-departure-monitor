@@ -1,5 +1,7 @@
 ### Unofficial DVB/VVO departure monitor
 
+<a href="https://crasher508.github.io/VVO-departure-monitor/" target="_blank">test it here!</a>
+
 | Param   | Description                          |
 |---------|--------------------------------------|
 | url     | set api entry url                    |
