@@ -1,11 +1,10 @@
 const staticDevCrasher508 = "dev-crasher508-unofficial-dvb-dm-v1";
 const assets = [
-    "/",
-    "/index.html",
-    "/icons/Icon-192.png",
-    "/icons/Icon-maskable-192.png",
-    "/icons/Icon-512.png",
-    "/icons/Icon-maskable-512.png"
+    "index.html",
+    "icons/Icon-192.png",
+    "icons/Icon-maskable-192.png",
+    "icons/Icon-512.png",
+    "icons/Icon-maskable-512.png"
 ];
 
 self.addEventListener("install", installEvent => {
