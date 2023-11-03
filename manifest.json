@@ -1,7 +1,7 @@
 {
     "name": "DVB Departure Monitor",
     "short_name": "DVB DM",
-    "start_url": "/",
+    "start_url": "/VVO-departure-monitor/",
     "display": "standalone",
     "background_color": "#ffcd27",
     "theme_color": "#ffcd27",
