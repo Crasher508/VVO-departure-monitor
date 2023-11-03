@@ -1,14 +1,117 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="description" content="unofficially dvb departure monitor">
+    <meta name="theme-color" content="#ffcd27">
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="dvb_departure_monitor">
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <link rel="manifest" href="manifest.json">
     <title>Departure Monitor</title>
+
+    <meta name="title" content="DVB Departure Monitor">
+    <meta name="keywords" content="DVB, Departure, Monitor, DM">
+    <meta name="description" content="unofficially dvb departure monitor">
+    <meta property="og:title" content="DVB Departure Monitor">
+    <meta property="og:description" content="unofficially dvb departure monitor">
+    <meta property="og:url" content="https://jonathan-beyer.com/">
+    <meta property="og:image" content="https://jonathan-beyer.com/favicon.png">
+    <meta property="og:type" content="website">
+    <meta itemprop="name" content="DVB Departure Monitor">
+    <meta itemprop="description" content="unofficially dvb departure monitor">
+    <meta itemprop="url" content="https://jonathan-beyer.com/">
+    <meta itemprop="image" content="https://jonathan-beyer.com/favicon.png">
+    <meta itemprop="keywords" content="DVB, Departure, Monitor, DM">
+    <style>
+        * {
+            margin: 0;
+        }
+
+        #stationSelectorOverlay {
+            z-index: 1;
+            display: none;
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            color: white;
+            background: rgba(47, 47, 47, 0.9);
+            text-align: center;
+            align-items: center;
+            background-size: cover;
+        }
+
+        #stationSelector {
+            z-index: 2;
+            height: 80%;
+            width: 96%;
+            color: white;
+            background: black;
+            text-align: center;
+            align-items: center;
+            background-size: cover;
+            margin-left: 2%;
+            margin-top: 2%;
+            border-radius: 2%;
+            border: 1px solid white;
+            font-size: 20px;
+        }
+
+        #stationSelectorClose {
+            float: right;
+            margin-top: 1%;
+            margin-right: 2%;
+            cursor: pointer;
+        }
+
+        #stationSelectorInput {
+            width: 80%;
+            padding: 1%;
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+        }
+
+        #stationSelectorSubmit {
+            padding: 1%;
+            color: white;
+            background-color: rgb(47,47,47);
+            border-radius: 5%;
+            border: none;
+            cursor: pointer;
+        }
+
+        #stationSelectorList {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body style="background-color: black" onload="startTime()">
-<div style="float: right; margin-right: 2%">
-    <span id="time" style="font-size:24px; color:white; font-family: Helvetica, sans-serif;"></span>
+<div id="stationSelectorOverlay">
+    <div id="stationSelector">
+        <p id="stationSelectorClose">x</p>
+        <form style="margin-top: 4%">
+            <label for="stationSelectorInput"></label><input type="text" id="stationSelectorInput" name="name" placeholder="Name der Station">
+            <input type="submit" id="stationSelectorSubmit" title="Wählen" name="submit">
+            <br>
+            <span id="stationSelectorList"></span>
+        </form>
+    </div>
 </div>
-<div style="margin-left: 2%; margin-right: 2%">
-    <span id="data" style="font-size:24px; color:#ffcd27; font-family: Helvetica, sans-serif;"></span>
+<br>
+<div>
+    <div style="float: right; margin-right: 2%;">
+        <span id="time" style="font-size:24px; color:white; font-family: Helvetica, sans-serif;"></span>
+    </div>
+    <div style="margin-left: 2%; margin-right: 2%;">
+        <span id="data" style="font-size:24px; color:#ffcd27; font-family: Helvetica, sans-serif;"></span>
+    </div>
 </div>
 
 <script>
@@ -17,7 +120,9 @@
     let modeParam = params.get("mode");
     let stopId = "33000131"; //Dresden Reichenbachstraße
     if (idParam !== null) {
-        stopId = idParam;
+        //if (idParam.length === 8) {
+            stopId = idParam;
+        //}
     }
     let url = "https://webapi.vvo-online.de/dm";
     let urlParam = params.get("url");
@@ -65,8 +170,8 @@
                 "Canceled": "Zug f&auml;llt aus !",
                 "undefined" : "unbekannt"
             };
-            let text = "<h1>" + data.Place + " " + data.Name + "</h1><br>";
-            for (let i=0; i < data.Departures.length; i++) {
+            let text = "<h1 id='station'>" + data.Place + " " + data.Name + "</h1><br>";
+            for (let i=0; i < (data.Departures ?? {}).length; i++) {
                 let linedir =  '<b>'+data.Departures[i].LineName + " : " + data.Departures[i].Direction+' </b>';
                 let direction = data.Departures[i].Direction;
                 if (modeParam === null) {
@@ -118,11 +223,74 @@
                 text += linedir + '<span style="float:right">' + soll + delay + '</span><br><i style="color:'+color+'">'+ statusText + '</i><span style="float:right">' + minutesText + '</span>';
             }
             document.getElementById("data").innerHTML = text;
+            document.getElementById("station").addEventListener("click", () => {
+                stS.style.display = "block";
+            });
         })
     }
-
+    let stS = document.getElementById("stationSelectorOverlay");
+    document.getElementById("stationSelectorClose").addEventListener("click", () => {
+        stS.style.display = "none";
+    });
     getData();
-</script>
+    document.getElementById("stationSelectorInput").addEventListener("change", (event) => {
+        let stationName = event.target.value;
+        updateStationList(stationName);
+    });
 
+    let map = new Map();
+
+    async function updateStationList(stationName) {
+        const response = await fetch(`https://webapi.vvo-online.de/tr/pointfinder?format=JSON&stopsOnly=True&query='${stationName}'&dvb=True&limit=10`, {
+            method: 'GET'
+        });
+        response.json().then(data => {
+            if (data.Status.Code !== "Ok")
+                return;
+            let text = "";
+            for (let i=0; i < (data.Points ?? {}).length; i++) {
+                let pointString = data.Points[i];
+                const chars = pointString.split("|");
+                if (chars.length < 4)
+                    continue;
+                let stopId = chars[0] ?? "";
+                if (stopId === "")
+                    continue;
+                let cityName = chars[2] ?? "";
+                let stationName = chars[3] ?? "";
+                if (cityName !== "")
+                    cityName += " ";
+                let resultStationName = cityName + stationName;
+                if (resultStationName === "")
+                    continue;
+                map.set(resultStationName, stopId);
+                if (i > 0)
+                    text += "<br>";
+                text += "<br><span onclick='changeStation(this)'>" + resultStationName + "</span>";
+            }
+            document.getElementById("stationSelectorList").innerHTML = text;
+        });
+    }
+
+    function changeStation(element) {
+        let name = element.innerText;
+        let stationId = map.get(name) ?? "";
+        console.log(stationId);
+        if (stationId === "")
+            return;
+        stS.style.display = "none";
+        stopId = stationId;
+        getData();
+    }
+
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+            navigator.serviceWorker
+                .register("/serviceWorker.js")
+                .then(res => console.log("service worker registered"))
+                .catch(err => console.log("service worker not registered", err));
+        });
+    }
+</script>
 </body>
 </html>
