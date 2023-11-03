@@ -284,7 +284,6 @@
     function changeStation(element) {
         let name = element.innerText;
         let stationId = map.get(name) ?? "";
-        console.log(stationId);
         if (stationId === "")
             return;
         stS.style.display = "none";
