@@ -172,7 +172,7 @@
             };
             let text = "<h1 style='cursor: pointer' id='station'>" + data.Place + " " + data.Name + "</h1><br>";
             for (let i=0; i < (data.Departures ?? {}).length; i++) {
-                let linedir =  '<b>'+data.Departures[i].LineName + " : " + data.Departures[i].Direction+' </b>';
+                let lineDirection =  '<b>'+data.Departures[i].LineName + " : " + data.Departures[i].Direction+' </b>';
                 let direction = data.Departures[i].Direction;
                 if (modeParam === null) {
                     if (i > 0) {
@@ -187,28 +187,27 @@
                 let schedule = parseInt(data.Departures[i].ScheduledTime.substring(6, 19))
                 let time = new Date(schedule);
                 let soll = time.toTimeString().substring(0, 5);
-                let status = statusTable[ data.Departures[i].State ] ;
-                document.getElementById("data").innerHTML = '<span style="font-size:22pt; color:#ffcd27; float:left"> x'+status+'x </span>';
+                let state = data.Departures[i].State ?? "undefined";
+                let status = statusTable[state] ?? "unbekannt";
+                let delay = "";
                 let color = "red";
-                if (status === "unbekannt") {
-                    document.getElementById("data").innerHTML = '<span style="font-size:22pt; color:#ffcd27; float:left"> hier </span>';
-                    delay = "";
-                    statusText = " keine Echtzeitdaten verf&uuml;gbar.";
+                if (state === "undefined") {
+                    status = "keine Echtzeitdaten verf&uuml;gbar";
                     color = "grey";
-                } else {
-                    var statusText = statusTable[ data.Departures[i].State ] ;
-                    var delay =  Math.floor(((parseInt(data.Departures[i].RealTime.substring(6, 19))) - schedule)/60000);
-                    if (delay > 0) {
-                        delay = '<b style="color:red">&nbsp;+'+delay+'</b>';
-                        color = "red";
-                    } else if (direction.substring(direction.length-10, direction.length) === " fällt aus") {
-                        linedir = "<b>"+data.Departures[i].LineName + " : " + data.Departures[i].Direction.substring(0, data.Departures[i].Direction.length-10)+" </b>";
-                        delay = "";
-                        statusText = " Zug f&auml;llt aus !";
-                        color = "red";
-                    } else {
-                        delay = "";
-                        color = "green";
+                } else if (state !== "Cancelled") {
+                    let departureTime = data.Departures[i].RealTime ?? "";
+                    if (departureTime !== "") {
+                        let delayNumber =  Math.floor(((parseInt(departureTime.substring(6, 19))) - schedule)/60000);
+                        if (delayNumber > 0) {
+                            delay = '<b style="color:red">&nbsp;+'+delayNumber+'</b>';
+                            color = "red";
+                        } else if (direction.substring(direction.length-10, direction.length) === " fällt aus") {
+                            lineDirection = "<b>"+data.Departures[i].LineName + " : " + direction.substring(0, direction.length-10)+" </b>";
+                            status = "f&auml;llt aus";
+                            color = "red";
+                        } else {
+                            color = "green";
+                        }
                     }
                 }
                 let minutes = Math.floor((time - new Date())/60000);
@@ -229,7 +228,7 @@
                         minutesText += `${minutes} Minuten`;
                     }
                 }
-                text += linedir + '<span style="float:right">' + soll + delay + '</span><br><i style="color:'+color+'">'+ statusText + '</i><span style="float:right">' + minutesText + '</span>';
+                text += lineDirection + '<span style="float:right">' + soll + delay + '</span><br><i style="color:'+color+'">'+ status + '</i><span style="float:right">' + minutesText + '</span>';
             }
             document.getElementById("data").innerHTML = text;
             document.getElementById("station").addEventListener("click", () => {
