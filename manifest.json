@@ -1,7 +1,7 @@
 {
     "name": "VVO Departure Monitor",
     "short_name": "VVO DM",
-    "start_url": "/VVO-departure-monitor/index.html",
+    "start_url": "/VVO-departure-monitor/",
     "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#000000",
