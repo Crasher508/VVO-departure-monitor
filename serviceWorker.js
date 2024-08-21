@@ -1,24 +1,44 @@
-const staticDevCrasher508 = "dev-crasher508-unofficial-dvb-dm-v1";
-const assets = [
+const VERSION = "v1.3";
+const CACHE_NAME = `dev-crasher508-unofficial-vvo-dm-${VERSION}`;
+const APP_STATIC_RESOURCES = [
     "index.html",
-    "icons/Icon-192.png",
-    "icons/Icon-maskable-192.png",
-    "icons/Icon-512.png",
-    "icons/Icon-maskable-512.png"
+    "Icon-192x192.png",
+    "Icon-512x512.png",
+    "favicon-16x16.png",
+    "favicon-32x32.png",
+    "maskable.svg"
 ];
 
-self.addEventListener("install", installEvent => {
-    installEvent.waitUntil(
-        caches.open(staticDevCrasher508).then(cache => {
-            cache.addAll(assets);
-        })
+self.addEventListener("install", (event) => {
+    event.waitUntil(
+        (async () => {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.addAll(APP_STATIC_RESOURCES);
+        })(),
     );
 });
 
-self.addEventListener("fetch", fetchEvent => {
-    fetchEvent.respondWith(
-        caches.match(fetchEvent.request).then(res => {
-            return res || fetch(fetchEvent.request);
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        (async () => {
+            const names = await caches.keys();
+            await Promise.all(
+                names.map((name) => {
+                    if (name !== CACHE_NAME) {
+                        return caches.delete(name);
+                    }
+                }),
+            );
+            await clients.claim();
+        })(),
+    );
+});
+
+
+self.addEventListener("fetch", (event) => {
+    event.respondWith(
+        caches.match(event.request).then(res => {
+            return res || fetch(event.request);
         })
     );
 });

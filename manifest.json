@@ -1,34 +1,38 @@
 {
-    "name": "DVB Departure Monitor",
-    "short_name": "DVB DM",
-    "start_url": "/VVO-departure-monitor/",
+    "name": "VVO Departure Monitor",
+    "short_name": "VVO DM",
+    "start_url": "/VVO-departure-monitor/index.html",
     "display": "standalone",
-    "background_color": "#ffcd27",
-    "theme_color": "#ffcd27",
-    "description": "unofficially dvb departure monitor",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "description": "unofficially vvo departure monitor",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
         {
-            "src": "icons/Icon-192.png",
+            "src": "Icon-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icons/Icon-512.png",
+            "src": "Icon-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         },
         {
-            "src": "icons/Icon-maskable-192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
+            "src": "favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png"
         },
         {
-            "src": "icons/Icon-maskable-512.png",
-            "sizes": "512x512",
-            "type": "image/png",
+            "src": "favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "maskable.svg",
+            "sizes": "700x700",
+            "type": "image/svg",
             "purpose": "maskable"
         }
     ]
