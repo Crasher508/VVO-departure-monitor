@@ -93,9 +93,18 @@
         }
 
         .stationSelectorList {
+            height: 100%;
             cursor: pointer;
             margin-top: 4%;
             margin-bottom: 4%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            line-height: 3rem;
+            font-size: 2rem;
+        }
+
+        .stationSelectorList div {
+            margin-bottom: 2%;
         }
 
         .container {
@@ -220,7 +229,7 @@
             <label for="stationSelectorInput"></label>
             <input class="stationSelectorInput" type="text" id="stationSelectorInput" name="name" placeholder="Name der Station">
         </form>
-        <span class="stationSelectorList" id="stationSelectorList"></span>
+        <div class="stationSelectorList" id="stationSelectorList"></div>
     </div>
 </div>
 <br>
@@ -457,9 +466,7 @@
                 if (resultStationName === "")
                     continue;
                 map.set(resultStationName, stopId);
-                if (i > 0)
-                    text += "<br>";
-                text += "<br><span onclick='changeStation(this)'>" + resultStationName + "</span>";
+                text += "<div onclick='changeStation(this)'><span>" + resultStationName + "</span></div>";
             }
             document.getElementById("stationSelectorList").innerHTML = text;
         });
