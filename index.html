@@ -379,14 +379,17 @@
                 let direction = data.Departures[i].Direction;
                 let schedule = parseInt(data.Departures[i].ScheduledTime.substring(6, 19))
                 let state = data.Departures[i].State ?? "undefined";
-                let delayText = "<p style='color: black'>...</p>";
+                let delayText = "<p></p>";
                 let delayTextColor = "green";
+                let delayed = 0;
                 if (state === "undefined") {
                 } else if (state !== "Cancelled") {
                     let departureTime = data.Departures[i].RealTime ?? "";
                     if (departureTime !== "") {
-                        let delay = Math.floor(((parseInt(departureTime.substring(6, 19))) - schedule)/60000);
+                        let delayedTime = parseInt(departureTime.substring(6, 19))
+                        let delay = Math.floor((delayedTime - schedule)/60000);
                         if (delay !== 0) {
+                            delayed = delayedTime;
                             if (delay > 0) {
                                 delayText = "+" + delay;
                                 delayTextColor = "red";
@@ -417,7 +420,7 @@
                             "<div class='delay' style='color:" + delayTextColor + "'>" + delayText + "</div>" +
                             "<div class='time'>" + soll + "</div>" +
                         "</div>" +
-                        "<div style='float: right' data-time-stamp='" + timeToStamp(time) + "' class='time-expand'></div>" +
+                        "<div style='float: right' data-time-stamp='" + (delayed !== 0 ? timeToStamp(new Date(delayed)) : timeToStamp(time)) + "' class='time-expand'></div>" +
                     "</div>" +
 
                     "</div>";
