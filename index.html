@@ -379,7 +379,7 @@
                 let direction = data.Departures[i].Direction;
                 let schedule = parseInt(data.Departures[i].ScheduledTime.substring(6, 19))
                 let state = data.Departures[i].State ?? "undefined";
-                let delayText = "<p></p>";
+                let delayText = "<p style='color: black'>...</p>";
                 let delayTextColor = "green";
                 let delayed = 0;
                 if (state === "undefined") {
