@@ -1,4 +1,4 @@
-const VERSION = "v1.4";
+const VERSION = "v1.5";
 const CACHE_NAME = `dev-crasher508-unofficial-vvo-dm-${VERSION}`;
 const APP_STATIC_RESOURCES = [
     "index.html",
