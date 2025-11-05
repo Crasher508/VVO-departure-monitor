@@ -220,9 +220,23 @@
                 font-size: 2rem;
             }
         }
+        .line-direction-container:has(.line-direction-text.scroll) .line-direction-text {
+            animation-duration: 5s ;
+            animation-iteration-count: infinite ;
+            animation-name: marquee-content ;
+            animation-timing-function: linear ;
+        }
+        @keyframes marquee-content {
+            from {
+                transform: translateX( 100% );
+            }
+            to {
+                transform: translateX( -150% );
+            }
+        }
     </style>
 </head>
-<body style="background-color: black" onload="startTime()">
+<body style="background-color: black">
 <div class="stationSelectorOverlay" id="stationSelectorOverlay">
     <div class="stationSelector">
         <p class="stationSelectorClose" id="stationSelectorClose">+</p>
@@ -257,6 +271,9 @@
 </div>
 
 <script>
+    window.addEventListener("load", startTime);
+    window.addEventListener('resize', calculateMarqueeTexts);
+
     function setCookie(name, value, expireDays) {
         let date = new Date();
         date.setTime(date.getTime() + (expireDays * 24 * 60 * 60 * 1000));
@@ -303,7 +320,6 @@
         const element = document.getElementById(id);
         if (element == null)
             return;
-        //const newElement = element.cloneNode(true);
         if (element.className === "departure") {
             for (const lineDirectionText of element.getElementsByClassName("line-direction")) {
                 lineDirectionText.innerHTML += lineDirectionText.dataset.expandString;
@@ -321,7 +337,7 @@
             }
             element.className = "departure";
         }
-        //element.parentElement.replaceChild(newElement, element);
+        calculateMarqueeTexts();
     }
 
     function timeToStamp(time) {
@@ -413,7 +429,7 @@
                       "<div class='line'>" +
                           "<div class='line-icon' style='font-size:" + lineIconSize + ";background-color:" + motColor + ";'>" + lineName + "</div>" +
                       "</div>" +
-                      "<div class='line-direction' data-line-direction='" + direction + "' data-expand-string='<div class=\"line-platform\">" + (platforms[((data.Departures[i].Platform ?? []).Type ?? "")] ?? "Steig") + " " + ((data.Departures[i].Platform ?? []).Name ?? "") + "</div>'>" + direction + "</div>" +
+                      "<div class='line-direction line-direction-container' data-line-direction='<div class=\"line-direction-text\">" + direction + "</div>' data-expand-string='<div class=\"line-platform\">" + (platforms[((data.Departures[i].Platform ?? []).Type ?? "")] ?? "Steig") + " " + ((data.Departures[i].Platform ?? []).Name ?? "") + "</div>'><div class='line-direction-text'>" + direction + "</div></div>" +
 
                     "<div>" +
                         "<div class='time-slot'>" +
@@ -430,6 +446,7 @@
             document.getElementById("station").addEventListener("click", () => {
                 stS.style.display = "block";
             });
+            calculateMarqueeTexts();
         })
     }
     let stS = document.getElementById("stationSelectorOverlay");
@@ -486,6 +503,19 @@
         setCookie("stopId", stationId, 365);
         //localStorage.setItem("stopId", stationId);
         getData();
+    }
+
+    function calculateMarqueeTexts() {
+        document.querySelectorAll('.line-direction-container').forEach(container => {
+            const text = container.querySelector('.line-direction-text');
+            if (text != null) {
+                if (text.scrollWidth > container.clientWidth) {
+                    text.classList.add("scroll");
+                } else {
+                    text.classList.remove("scroll");
+                }
+            }
+        });
     }
 
     if ("serviceWorker" in navigator) {
